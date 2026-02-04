@@ -8,4 +8,12 @@ export interface Transaction {
   trigger?: string;
 }
 
-export type AppView = 'home' | 'story' | 'audit' | 'summary';
+export interface AuditResult {
+  timestamp: number;
+  decisions: Record<string, 'impulse' | 'planned'>;
+  totalSpent: number;
+  impulseAmount: number;
+  plannedAmount: number;
+}
+
+export type AppView = 'home' | 'story' | 'audit' | 'summary' | 'report';

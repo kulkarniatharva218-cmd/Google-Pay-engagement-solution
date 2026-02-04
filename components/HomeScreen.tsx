@@ -3,12 +3,15 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import ReflectBlob from './ReflectBlob';
 import { COLORS, MOCK_PEOPLE, MOCK_BUSINESSES } from '../constants';
+import { AuditResult } from '../types';
 
 interface HomeScreenProps {
   onStart: () => void;
+  onViewReport: () => void;
+  latestReport: AuditResult | null;
 }
 
-const HomeScreen: React.FC<HomeScreenProps> = ({ onStart }) => {
+const HomeScreen: React.FC<HomeScreenProps> = ({ onStart, onViewReport, latestReport }) => {
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -32,35 +35,47 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onStart }) => {
       </motion.div>
 
       {/* Reflect Discovery Card */}
-      <motion.div 
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.3, type: "spring", stiffness: 100 }}
-        whileTap={{ scale: 0.98 }}
-        onClick={onStart}
-        className="relative overflow-hidden rounded-3xl p-5 bg-white/40 backdrop-blur-xl border border-white/50 m3-shadow flex items-center space-x-4 cursor-pointer"
-      >
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-100/40 via-purple-100/40 to-pink-100/40 animate-pulse-slow pointer-events-none" />
-        
-        <div className="relative z-10 w-16 h-16 flex items-center justify-center">
-          <ReflectBlob size="sm" className="opacity-100" />
-          <span className="absolute text-xl">✨</span>
-        </div>
+      {!latestReport ? (
+        <motion.div 
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.3, type: "spring", stiffness: 100 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={onStart}
+          className="relative overflow-hidden rounded-3xl p-5 bg-white/40 backdrop-blur-xl border border-white/50 m3-shadow flex items-center space-x-4 cursor-pointer"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-100/40 via-purple-100/40 to-pink-100/40 animate-pulse-slow pointer-events-none" />
+          
+          <div className="relative z-10 w-16 h-16 flex items-center justify-center">
+            <ReflectBlob size="sm" className="opacity-100" />
+            <span className="absolute text-xl">✨</span>
+          </div>
 
-        <div className="flex-1 space-y-1 relative z-10">
-          <h3 className="text-sm font-bold text-gray-900 leading-tight">Your Weekly Vibe Check is ready.</h3>
-          <p className="text-xs text-gray-600">You had a 'Spontaneous' week. See the patterns?</p>
-          <button className="mt-2 px-4 py-1.5 bg-[#3949AB] text-white text-[11px] font-bold rounded-full m3-shadow">
-            Open Reflection
-          </button>
-        </div>
-
-        <div className="relative z-10 text-gray-400">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </div>
-      </motion.div>
+          <div className="flex-1 space-y-1 relative z-10">
+            <h3 className="text-sm font-bold text-gray-900 leading-tight">Your Weekly Vibe Check is ready.</h3>
+            <p className="text-xs text-gray-600">You had a 'Spontaneous' week. See the patterns?</p>
+            <button className="mt-2 px-4 py-1.5 bg-[#3949AB] text-white text-[11px] font-bold rounded-full m3-shadow">
+              Open Reflection
+            </button>
+          </div>
+        </motion.div>
+      ) : (
+        <motion.div 
+          initial={{ scale: 0.95, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          onClick={onViewReport}
+          className="bg-white rounded-3xl p-5 border border-indigo-50 m3-shadow flex items-center justify-between cursor-pointer active:scale-[0.98] transition-all"
+        >
+          <div className="flex items-center space-x-4">
+            <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-xl">📊</div>
+            <div>
+              <h3 className="text-sm font-bold text-gray-900">Your Spending Health</h3>
+              <p className="text-[11px] text-gray-500">Last report generated today</p>
+            </div>
+          </div>
+          <div className="text-indigo-600 font-bold text-xs bg-indigo-50 px-3 py-1.5 rounded-full">View Report</div>
+        </motion.div>
+      )}
 
       {/* People Grid */}
       <div className="space-y-4">

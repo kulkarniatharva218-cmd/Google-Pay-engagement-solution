@@ -1,12 +1,11 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
-// Added MOCK_PEOPLE to the import list to fix the undefined variable error
 import { MOCK_TRANSACTIONS, COLORS, MOCK_PEOPLE } from '../constants';
 import { Transaction } from '../types';
 
 interface AuditViewProps {
-  onFinish: () => void;
+  onFinish: (decisions: Record<string, 'impulse' | 'planned'>) => void;
 }
 
 interface CardProps {
@@ -19,14 +18,12 @@ const Card: React.FC<CardProps> = ({ item, onDecision }) => {
   const rotate = useTransform(x, [-200, 200], [-15, 15]);
   const opacity = useTransform(x, [-250, -150, 0, 150, 250], [0, 1, 1, 1, 0]);
   
-  // Dynamic background color shift based on swipe
   const bgColor = useTransform(
     x,
     [-150, 0, 150],
     ['#FFF1F0', '#FFFFFF', '#F0F9F8']
   );
 
-  // Indicators for swipe decision
   const impulseOpacity = useTransform(x, [-100, -20], [1, 0]);
   const plannedOpacity = useTransform(x, [20, 100], [0, 1]);
 
@@ -44,7 +41,6 @@ const Card: React.FC<CardProps> = ({ item, onDecision }) => {
       exit={{ x: x.get() > 0 ? 600 : -600, opacity: 0, scale: 0.5, transition: { duration: 0.3 } }}
       className="absolute w-full max-w-sm aspect-[4/5] rounded-[2.5rem] m3-shadow p-8 flex flex-col border border-white/50 cursor-grab active:cursor-grabbing overflow-hidden select-none"
     >
-      {/* Swipe Overlay Indicators */}
       <motion.div 
         style={{ opacity: impulseOpacity }}
         className="absolute top-10 right-10 border-4 border-[#FF8A80] px-4 py-1 rounded-xl rotate-[15deg] pointer-events-none"
@@ -60,7 +56,6 @@ const Card: React.FC<CardProps> = ({ item, onDecision }) => {
       </motion.div>
 
       <div className="flex-1 flex flex-col">
-        {/* Header: Icon and Progress */}
         <div className="flex justify-between items-center mb-8">
           <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center text-3xl m3-shadow border border-white">
             {item.icon}
@@ -70,7 +65,6 @@ const Card: React.FC<CardProps> = ({ item, onDecision }) => {
           </div>
         </div>
         
-        {/* Core Info: Merchant and Amount */}
         <div className="space-y-1 mb-8">
           <h3 className="text-3xl font-bold text-[#1C1B1F] leading-tight">{item.merchant}</h3>
           <div className="text-5xl font-black text-[#1C1B1F] tracking-tighter">
@@ -78,7 +72,6 @@ const Card: React.FC<CardProps> = ({ item, onDecision }) => {
           </div>
         </div>
 
-        {/* Details Section: Tag and Trigger (Requested Summary) */}
         <div className="mt-auto space-y-4 pt-6 border-t border-gray-100">
           <div className="space-y-1.5">
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Category & Context</p>
@@ -101,7 +94,6 @@ const Card: React.FC<CardProps> = ({ item, onDecision }) => {
         </div>
       </div>
 
-      {/* Footer hint */}
       <div className="mt-8 text-center text-gray-300 text-[10px] font-bold uppercase tracking-[0.2em]">
         Swipe left for Impulse • Right for Planned
       </div>
@@ -117,11 +109,12 @@ const AuditView: React.FC<AuditViewProps> = ({ onFinish }) => {
     if (items.length === 0) return;
     
     const current = items[0];
-    setDecisionLog(prev => ({ ...prev, [current.id]: type }));
+    const newDecisions = { ...decisionLog, [current.id]: type };
+    setDecisionLog(newDecisions);
     setItems(prev => prev.slice(1));
 
     if (items.length === 1) {
-      setTimeout(onFinish, 800);
+      setTimeout(() => onFinish(newDecisions), 800);
     }
   };
 
@@ -129,14 +122,12 @@ const AuditView: React.FC<AuditViewProps> = ({ onFinish }) => {
     <div className="flex-1 flex flex-col px-6 pb-8 relative overflow-hidden">
       <div className="py-6 text-center space-y-1">
         <h2 className="text-2xl font-black text-[#1C1B1F] tracking-tight">Vibe Audit</h2>
-        {/* Added missing MOCK_PEOPLE by importing it from constants */}
         <p className="text-sm font-medium text-[#49454F] opacity-70">Be honest with yourself, {MOCK_PEOPLE[0].name}!</p>
       </div>
 
       <div className="flex-1 relative mt-2 flex items-center justify-center">
         <AnimatePresence mode="popLayout">
           {items.map((item, index) => {
-            // Only render top 2 cards for performance and stack look
             if (index > 1) return null;
             return (
               <Card 
